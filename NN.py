@@ -7,6 +7,12 @@ def sigmoid(num):
 def sigmoid_deriv(num):
     return sigmoid(num) * (1 - sigmoid(num))
 
+def activation(num):
+    return sigmoid(num)
+
+def activation_deriv(num):
+    return sigmoid_deriv(num)
+
 class Node:
     def __init__(self, weights = [], biases = []):
         assert(len(weights) == len(biases))
@@ -24,18 +30,18 @@ class Node:
         assert(len(input) == len(self.w))
         sum = 0
         for i in range(self.size()):
-            sum += sigmoid((input[i] * self.w[i]) + self.b[i])
+            sum += activation((input[i] * self.w[i]) + self.b[i])
         
         return sum
     
     def pDeriv(self, input, index): #returns partial derivative of output wrt input at index
-        return sigmoid_deriv(input[index] * self.w[index] + self.b[index]) * self.w[index]
+        return activation_deriv(input[index] * self.w[index] + self.b[index]) * self.w[index]
     
     def pDerivWeight(self, input, index): #returns pDeriv of output wrt weight at certain index
-        return sigmoid_deriv(input[index] * self.w[index] + self.b[index]) * input[index]
+        return activation_deriv(input[index] * self.w[index] + self.b[index]) * input[index]
     
     def pDerivBias(self, input, index): #returns pDeriv of output wrt bias at certain index
-        return sigmoid_deriv(input[index] * self.w[index] + self.b[index])
+        return activation_deriv(input[index] * self.w[index] + self.b[index])
 
 class Layer:
     def __init__(self, size, prevLayerSize):
@@ -131,7 +137,7 @@ class NN:
         
 
 def main():
-    network = NN([3,10,10,3])
+    network = NN([3,10,5,3])
     for i in range(1000):
         network.setExpected([0.1,0.9,0.5])
         network.eval([-2,0,3])
@@ -160,10 +166,21 @@ def main():
     #print(adj)
     print("----")
 
+    cost = 0
+    
+    network.setExpected([0.1,0.9,0.5])
     print(network.eval([-2,0,3]))
+    cost += network.cost
+    network.setExpected([0.1,0.2,0.3])
     print(network.eval([1,2,3]))
+    cost += network.cost
+    network.setExpected([0.5,0.3,0.9])
     print(network.eval([2,1,1]))
+    cost += network.cost
+    network.setExpected([0.2,0.3,0.4])
     print(network.eval([1,3,5]))
+    cost += network.cost
+    print("Cost: " + str(cost))
         
 
 
